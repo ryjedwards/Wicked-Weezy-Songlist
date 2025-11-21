@@ -6,20 +6,21 @@ import os
 st.set_page_config(page_title="Wicked Weezy Search", layout="wide")
 
 # --- CENTERED LOGO SECTION ---
-# We use 3 columns to force the image into the center
-# The ratio [1, 2, 1] means the middle column is twice as wide as the side spacers
 left_co, cent_co, last_co = st.columns([1, 2, 1])
 
 with cent_co:
-    if os.path.exists("logo.jpg"):
-        # 'use_container_width=True' makes it scale nicely on phones
-        st.image("logo.jpg", use_container_width=True)
+    # PRIORITIZE PNG since that's what you have!
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=300)
+    elif os.path.exists("logo.jpg"):
+        st.image("logo.jpg", width=300)
+    elif os.path.exists("logo.JPG"):
+        st.image("logo.JPG", width=300)
     else:
-        # Fallback text if image is missing
+        # Fallback text
         st.header("🎤 Wicked Weezy")
 
 # --- CENTERED TITLE ---
-# Standard st.title is left-aligned, so we use Markdown to center it
 st.markdown("<h1 style='text-align: center;'>Song List Search Tool</h1>", unsafe_allow_html=True)
 
 # Instructions
