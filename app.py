@@ -102,7 +102,7 @@ try:
             )
             
     else:
-        st.info("Enter text above to see results!")
+        st.info("Search our Song Library to find out what to sing!")
 
 except FileNotFoundError:
     st.error("Song list not found! Please ask the DJ to upload 'SongList.csv' to GitHub.")
