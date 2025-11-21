@@ -1,17 +1,36 @@
 import streamlit as st
 import pandas as pd
+import os
 
 # Page Setup
 st.set_page_config(page_title="Wicked Weezy Search", layout="wide")
 
-# Main Title
-st.title("🎤 Wicked Weezy Song List Search Tool")
+# --- CENTERED LOGO SECTION ---
+# We use 3 columns to force the image into the center
+# The ratio [1, 2, 1] means the middle column is twice as wide as the side spacers
+left_co, cent_co, last_co = st.columns([1, 2, 1])
+
+with cent_co:
+    if os.path.exists("logo.jpg"):
+        # 'use_container_width=True' makes it scale nicely on phones
+        st.image("logo.jpg", use_container_width=True)
+    else:
+        # Fallback text if image is missing
+        st.header("🎤 Wicked Weezy")
+
+# --- CENTERED TITLE ---
+# Standard st.title is left-aligned, so we use Markdown to center it
+st.markdown("<h1 style='text-align: center;'>Song List Search Tool</h1>", unsafe_allow_html=True)
 
 # Instructions
 st.markdown("""
-**How to use:** Type in the box below to find your karaoke track.  
-*By default, we search for matches in both Artist and Song names.*
-""")
+<div style='text-align: center;'>
+<b>How to use:</b> Type in the box below to find your karaoke track.<br>
+<i>By default, we search for matches in both Artist and Song names.</i>
+</div>
+""", unsafe_allow_html=True)
+
+st.write("") # Spacer
 
 # Load Data
 @st.cache_data
@@ -24,35 +43,29 @@ try:
     # Search Input
     search_term = st.text_input("Type here to search:", placeholder="e.g. Journey or Don't Stop Believin'")
 
-    # Filter Options (Radio buttons acting as tabs)
-    # We use columns to keep the UI tight
+    # Filter Options
     col1, col2 = st.columns([1, 2])
     
     with col1:
         search_mode = st.radio(
             "Optional: Narrow your search:",
             ["All (Default)", "Artist Name Only", "Song Title Only"],
-            horizontal=False # Stacked looks better on mobile phones
+            horizontal=False
         )
 
     # Filter Logic
     if search_term:
-        # 1. Search ALL (Default)
         if search_mode == "All (Default)":
             mask = (df['Artist'].str.contains(search_term, case=False, regex=False)) | \
                    (df['Song'].str.contains(search_term, case=False, regex=False))
-        
-        # 2. Search ARTIST Only
         elif search_mode == "Artist Name Only":
             mask = df['Artist'].str.contains(search_term, case=False, regex=False)
-            
-        # 3. Search SONG Only
         else:
             mask = df['Song'].str.contains(search_term, case=False, regex=False)
             
         results = df[mask]
         
-        st.divider() # Visual separator
+        st.divider()
         
         if len(results) > 0:
             st.success(f"Found {len(results)} matches:")
