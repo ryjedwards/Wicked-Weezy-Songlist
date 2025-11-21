@@ -13,6 +13,7 @@ def render_centered_image(filename, width=300):
             data = f.read()
             encoded = base64.b64encode(data).decode()
         
+        # This block DOES need the 'f' because we inject {encoded} and {width}
         st.markdown(
             f"""
             <div style="display: flex; justify-content: center; margin-bottom: 20px;">
@@ -81,11 +82,12 @@ try:
             st.success(f"Found {len(results)} matches:")
             st.dataframe(results[['Artist', 'Song']], use_container_width=True, hide_index=True)
         else:
-            # --- NO RESULTS FOUND SECTION (THEME FIXED) ---
+            # --- NO RESULTS FOUND SECTION ---
             st.warning("No results found. Try checking your spelling or switching back to 'All'.")
             
-            # We use 'var(--secondary-background-color)' so it adapts to Dark Mode automatically
-            st.markdown(f"""
+            # FIX: Removed the 'f' from the start of this string so Python
+            # doesn't get confused by the CSS variables.
+            st.markdown("""
             <div style="
                 text-align: center; 
                 margin-top: 20px; 
