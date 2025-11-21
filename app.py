@@ -6,10 +6,11 @@ import os
 st.set_page_config(page_title="Wicked Weezy Search", layout="wide")
 
 # --- CENTERED LOGO SECTION ---
-left_co, cent_co, last_co = st.columns([1, 2, 1])
+# We use [3, 2, 3] to squeeze the middle column tighter.
+# This ensures the logo stays in the center and doesn't float left.
+left_co, cent_co, last_co = st.columns([3, 2, 3])
 
 with cent_co:
-    # PRIORITIZE PNG since that's what you have!
     if os.path.exists("logo.png"):
         st.image("logo.png", width=300)
     elif os.path.exists("logo.jpg"):
@@ -17,11 +18,10 @@ with cent_co:
     elif os.path.exists("logo.JPG"):
         st.image("logo.JPG", width=300)
     else:
-        # Fallback text
         st.header("🎤 Wicked Weezy")
 
 # --- CENTERED TITLE ---
-st.markdown("<h1 style='text-align: center;'>Song List Search Tool</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Karaoke Song List Search Tool</h1>", unsafe_allow_html=True)
 
 # Instructions
 st.markdown("""
@@ -36,6 +36,7 @@ st.write("") # Spacer
 # Load Data
 @st.cache_data
 def load_data():
+    # Ensure 'SongList.csv' is uploaded to your GitHub!
     return pd.read_csv("SongList.csv", keep_default_na=False)
 
 try:
