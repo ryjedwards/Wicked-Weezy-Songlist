@@ -13,7 +13,6 @@ def render_centered_image(filename, width=300):
             data = f.read()
             encoded = base64.b64encode(data).decode()
         
-        # Note: We keep the indentation of the function, but the HTML string starts flush left
         st.markdown(
 f"""
 <div style="display: flex; justify-content: center; margin-bottom: 20px;">
@@ -64,16 +63,31 @@ try:
             horizontal=False
         )
 
-    # Filter Logic
+    # --- SMART FILTER LOGIC ---
     if search_term:
-        if search_mode == "All (Default)":
-            mask = (df['Artist'].str.contains(search_term, case=False, regex=False)) | \
-                   (df['Song'].str.contains(search_term, case=False, regex=False))
-        elif search_mode == "Artist Name Only":
-            mask = df['Artist'].str.contains(search_term, case=False, regex=False)
-        else:
-            mask = df['Song'].str.contains(search_term, case=False, regex=False)
-            
+        # 1. Split the search into individual words (tokens)
+        # "Bon Jovi Livin" -> ["Bon", "Jovi", "Livin"]
+        search_tokens = search_term.split()
+        
+        # 2. Start with a mask that includes ALL rows (True)
+        mask = pd.Series(True, index=df.index)
+
+        # 3. Loop through each word and narrow down the results
+        for token in search_tokens:
+            if search_mode == "All (Default)":
+                # Keep row if token is in Artist OR Song
+                mask = mask & (
+                    df['Artist'].str.contains(token, case=False, regex=False) | 
+                    df['Song'].str.contains(token, case=False, regex=False)
+                )
+            elif search_mode == "Artist Name Only":
+                # Keep row only if token is in Artist
+                mask = mask & df['Artist'].str.contains(token, case=False, regex=False)
+            else:
+                # Keep row only if token is in Song
+                mask = mask & df['Song'].str.contains(token, case=False, regex=False)
+        
+        # Apply the final mask
         results = df[mask]
         
         st.divider()
@@ -85,8 +99,6 @@ try:
             # --- NO RESULTS FOUND SECTION ---
             st.warning("No results found. Try checking your spelling or switching back to 'All'.")
             
-            # CRITICAL FIX: The HTML string below is shifted all the way to the left.
-            # This prevents Streamlit from treating it as a code block.
             st.markdown(
 """
 <div style="text-align: center; margin-top: 20px; padding: 20px; background-color: var(--secondary-background-color); border-radius: 10px; border: 1px solid var(--text-color-20);">
