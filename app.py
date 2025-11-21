@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 import base64
+import re  # Import regex for smart matching
 
 # Page Setup
 st.set_page_config(page_title="Wicked Weezy Search", layout="wide")
@@ -65,29 +66,29 @@ try:
 
     # --- SMART FILTER LOGIC ---
     if search_term:
-        # 1. Split the search into individual words (tokens)
-        # "Bon Jovi Livin" -> ["Bon", "Jovi", "Livin"]
+        # Split the search into individual words
         search_tokens = search_term.split()
         
-        # 2. Start with a mask that includes ALL rows (True)
+        # Start with a mask that includes ALL rows
         mask = pd.Series(True, index=df.index)
 
-        # 3. Loop through each word and narrow down the results
+        # Loop through each word
         for token in search_tokens:
+            # ESCAPE special characters (like + or ?) so they don't break the regex
+            # \b adds a "Word Boundary" to the start.
+            # This means "He" matches "He..." but NOT "...the"
+            pattern = r'\b' + re.escape(token)
+            
             if search_mode == "All (Default)":
-                # Keep row if token is in Artist OR Song
                 mask = mask & (
-                    df['Artist'].str.contains(token, case=False, regex=False) | 
-                    df['Song'].str.contains(token, case=False, regex=False)
+                    df['Artist'].str.contains(pattern, case=False, regex=True) | 
+                    df['Song'].str.contains(pattern, case=False, regex=True)
                 )
             elif search_mode == "Artist Name Only":
-                # Keep row only if token is in Artist
-                mask = mask & df['Artist'].str.contains(token, case=False, regex=False)
+                mask = mask & df['Artist'].str.contains(pattern, case=False, regex=True)
             else:
-                # Keep row only if token is in Song
-                mask = mask & df['Song'].str.contains(token, case=False, regex=False)
+                mask = mask & df['Song'].str.contains(pattern, case=False, regex=True)
         
-        # Apply the final mask
         results = df[mask]
         
         st.divider()
