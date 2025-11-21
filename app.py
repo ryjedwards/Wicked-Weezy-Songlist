@@ -13,13 +13,13 @@ def render_centered_image(filename, width=300):
             data = f.read()
             encoded = base64.b64encode(data).decode()
         
-        # This block DOES need the 'f' because we inject {encoded} and {width}
+        # Note: We keep the indentation of the function, but the HTML string starts flush left
         st.markdown(
-            f"""
-            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-                <img src="data:image/png;base64,{encoded}" width="{width}">
-            </div>
-            """,
+f"""
+<div style="display: flex; justify-content: center; margin-bottom: 20px;">
+    <img src="data:image/png;base64,{encoded}" width="{width}">
+</div>
+""",
             unsafe_allow_html=True
         )
         return True
@@ -85,34 +85,21 @@ try:
             # --- NO RESULTS FOUND SECTION ---
             st.warning("No results found. Try checking your spelling or switching back to 'All'.")
             
-            # FIX: Removed the 'f' from the start of this string so Python
-            # doesn't get confused by the CSS variables.
-            st.markdown("""
-            <div style="
-                text-align: center; 
-                margin-top: 20px; 
-                padding: 20px; 
-                background-color: var(--secondary-background-color); 
-                border-radius: 10px;
-                border: 1px solid var(--text-color-20);">
-                
-                <p style="font-size: 16px; color: var(--text-color);"><b>Can't find what you're looking for?</b></p>
-                
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9aQ6xXhr77_ORtb0Q41hLJn7RvycI-ZS5hQdt33q58zvVMA/viewform" target="_blank">
-                    <button style="
-                        background-color: #FF4B4B; 
-                        color: white; 
-                        padding: 10px 24px; 
-                        border: none; 
-                        border-radius: 4px; 
-                        cursor: pointer; 
-                        font-size: 16px;
-                        font-weight: bold;">
-                        📝 Request a Song Here
-                    </button>
-                </a>
-            </div>
-            """, unsafe_allow_html=True)
+            # CRITICAL FIX: The HTML string below is shifted all the way to the left.
+            # This prevents Streamlit from treating it as a code block.
+            st.markdown(
+"""
+<div style="text-align: center; margin-top: 20px; padding: 20px; background-color: var(--secondary-background-color); border-radius: 10px; border: 1px solid var(--text-color-20);">
+    <p style="font-size: 16px; color: var(--text-color);"><b>Can't find what you're looking for?</b></p>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9aQ6xXhr77_ORtb0Q41hLJn7RvycI-ZS5hQdt33q58zvVMA/viewform" target="_blank">
+        <button style="background-color: #FF4B4B; color: white; padding: 10px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            📝 Request a Song Here
+        </button>
+    </a>
+</div>
+""", 
+                unsafe_allow_html=True
+            )
             
     else:
         st.info("Enter text above to see results!")
