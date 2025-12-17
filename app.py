@@ -13,7 +13,7 @@ def render_centered_image(filename, width=300):
         with open(filename, "rb") as f:
             data = f.read()
             encoded = base64.b64encode(data).decode()
-        
+
         st.markdown(
 f"""
 <div style="display: flex; justify-content: center; margin-bottom: 20px;">
@@ -50,13 +50,13 @@ def load_data():
 
 try:
     df = load_data()
-    
+
     # Search Input
     search_term = st.text_input("Type here to search:", placeholder="e.g. Journey or Don't Stop Believin'")
 
     # Filter Options
     col1, col2 = st.columns([1, 2])
-    
+
     with col1:
         search_mode = st.radio(
             "Optional: Narrow your search:",
@@ -68,17 +68,14 @@ try:
     if search_term:
         # Split the search into individual words
         search_tokens = search_term.split()
-        
+
         # Start with a mask that includes ALL rows
         mask = pd.Series(True, index=df.index)
 
         # Loop through each word
         for token in search_tokens:
-            # ESCAPE special characters (like + or ?) so they don't break the regex
-            # \b adds a "Word Boundary" to the start.
-            # This means "He" matches "He..." but NOT "...the"
             pattern = r'\b' + re.escape(token)
-            
+
             if search_mode == "All (Default)":
                 mask = mask & (
                     df['Artist'].str.contains(pattern, case=False, regex=True) | 
@@ -88,22 +85,22 @@ try:
                 mask = mask & df['Artist'].str.contains(pattern, case=False, regex=True)
             else:
                 mask = mask & df['Song'].str.contains(pattern, case=False, regex=True)
-        
+
         results = df[mask]
-        
+
         st.divider()
-        
+
         if len(results) > 0:
             st.success(f"Found {len(results)} matches:")
             st.dataframe(results[['Artist', 'Song']], use_container_width=True, hide_index=True)
         else:
-            # --- NO RESULTS FOUND SECTION ---
             st.warning("No results found. Try checking your spelling or switching back to 'All'.")
-            
-            st.markdown(
+
+        # --- REQUEST BUTTON SECTION (ALWAYS VISIBLE AFTER SEARCH) ---
+        st.markdown(
 """
-<div style="text-align: center; margin-top: 20px; padding: 20px; background-color: var(--secondary-background-color); border-radius: 10px; border: 1px solid var(--text-color-20);">
-    <p style="font-size: 16px; color: var(--text-color);"><b>Can't find what you're looking for?</b></p>
+<div style="text-align: center; margin-top: 40px; padding: 20px; background-color: var(--secondary-background-color); border-radius: 10px; border: 1px solid var(--text-color-20);">
+    <p style="font-size: 16px; color: var(--text-color);"><b>Didn't find what you're looking for?</b></p>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSf9aQ6xXhr77_ORtb0Q41hLJn7RvycI-ZS5hQdt33q58zvVMA/viewform" target="_blank">
         <button style="background-color: #FF4B4B; color: white; padding: 10px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">
             📝 Request a Song Here
@@ -111,9 +108,9 @@ try:
     </a>
 </div>
 """, 
-                unsafe_allow_html=True
-            )
-            
+            unsafe_allow_html=True
+        )
+
     else:
         st.info("Search our Song Library to find out what to sing!")
 
